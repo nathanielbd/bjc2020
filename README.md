@@ -1,6 +1,6 @@
 # Breakthrough Junior Challenge 2020
 
-Script and Manim code
+Script and Manim code. The inverted pendulum simulation code can be found [here](https://github.com/SASE-Labs-2021/inverted-pendulum).
 
 ## Usage
 
