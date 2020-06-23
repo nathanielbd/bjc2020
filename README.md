@@ -18,6 +18,8 @@ sudo apt install texlive-science        # "physics"
 # install manim
 git clone https://github.com/3b1b/manim.git
 cd manim
+conda env create -f environment.yml
+conda activate manim
 python3 -m pip install -r requirements.txt
 cd ..
 git clone https://github.com/nathanielbd/bjc2020.git

@@ -21,7 +21,7 @@ Segways are cool, right? But how do they balance?
 > [x] Segue.mp4
 > [x] edit
 
-Well that question's the perfect segue into talking about control theory!
+Well that question's the perfect segue into talking about cybernetics!
 
 > [x] demo with Kp, Ki, Kd all 0
 > demo_zero.mp4
@@ -81,19 +81,20 @@ Hmm, our proportional feedback worked when the accumulated errors were small, bu
 
 > Manim adds Ki \int_0^t e(\tau) d\tau to the feedback loop
 > [x] Integral.mp4
-> [ ] edit so that the P and I have rectangle blocks and have the lines go through them
+> [x] edit so that the P and I have rectangle blocks and have the lines go through them
 
 To compensate, we can make the cart roll faster proportional to the area under the error curve (the integral). 
 
 > demo with Kp, Ki > 0, other = 0 with the sensor below it
+> file:///C:/Users/nathanielbd/code/inverted-pendulum/index.html?kp=0.2&ki=0.015&kd=0
 > [x] demo_int.mp4
 > [ ] edit in post
 
-But this doesn't give good results; the compounding factor of gravity causes the system to overshoot. Talk about a wild ride.
+But this doesn't give good results; momentum causes the system to overshoot. Talk about a wild ride.
 
 > Use Manim to draw tangent line
-> [ ] Tangent.mp4
-> [ ] edit (draw data points with Manim instead of screenshot)
+> [x] Tangent.mp4
+> [x] edit (draw data points with Manim instead of screenshot)
 
 During the oscillation, the rate of change of the error changes over time. To combat this oscillation, we need to make the cart roll faster proportional to the slope of the error curve (the derivative).
 
@@ -102,9 +103,13 @@ During the oscillation, the rate of change of the error changes over time. To co
 > [ ] working_demo.mp4
 > [ ] edit in post
 
-> Manim with the final feedback loop with all 3 PID -- bold them when they are mentioned
+The system doesn't overshoot and it's stable.
 
-So we finally engineered our very own self-balancing system, changing the speed of the cart based on the error, the integral of the error, and the derivative of the error! Control theory and feedback loops form the basis for so many complex systems, from
+> Manim with the final feedback loop with all 3 PID -- bold them when they are mentioned
+> transition so connection to PID acronym is made clear
+> [x] PID.mp4
+
+So we finally engineered our very own self-balancing system, changing the speed of the cart based on the error, the integral of the error, and the derivative of the error! A PID controller! Cybernetics and feedback loops form the basis for so many complex systems, from
 
 > some robot
 > https://www.pexels.com/video/automatic-chocolate-machine-855117/
@@ -129,3 +134,4 @@ In a way, chaos is nature's preferred state, but control theory is our most powe
 So the next time someone tells you they'll never use calculus, that's the perfect segue to mention PIDs and control the situation.
 
 > end screen saying I hand-coded this, thanking the FOSS authors, and linking to the demo
+> [x] ThankYou.mp4

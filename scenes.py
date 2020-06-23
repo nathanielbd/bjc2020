@@ -16,7 +16,7 @@ class TikzMobject(TextMobject):
 class Segue(Scene):
     def construct(self):
         question = TextMobject("How does a Segway balance?")
-        segue = VGroup(*TextMobject("Segue $\\rightarrow$ ", "Control Theory!"))
+        segue = VGroup(*TextMobject("Segue $\\rightarrow$ ", "Cybernetics!"))
         segue[1].set_color_by_gradient(GREEN, RED)
         self.play(Write(question))
         self.wait(2)
@@ -226,13 +226,13 @@ class Auc(GraphScene):
     }
 
     def construct(self):
-        self.setup_axes()
+        self.setup_axes(animate=True)
         with open('../bjc2020/demo_prop_data.json') as json_file:
             coords = json.load(json_file)
         # for coord in coords:
             # print(f"x: {coord['x']}, y: {coord['y']}")
         dots = VGroup(*[Dot(point=self.coords_to_point(coord['x'],coord['y']), radius=0.03, color=BLUE) for coord in coords if coord['x'] < 8000])
-        self.add(dots)
+        self.play(Write(dots))
         integral = VGroup(*[Line(self.coords_to_point(coord['x'],0), self.coords_to_point(coord['x'],coord['y']), stroke_opacity=0.3).set_color(BLUE).set_stroke(width=8) for coord in coords if coord['x'] < 8000])
         left = SurroundingRectangle(dots)
         left.stretch(0.38, 0, about_edge=LEFT)
@@ -253,15 +253,9 @@ class Integral(Scene):
         left_label = TextMobject("Random error",
         )
         left_label.next_to(left_arrow, LEFT, MED_SMALL_BUFF)
-        self.add(left_arrow)
-        self.add(left_label)
         gravity = TextMobject("Gravity")
         box = SurroundingRectangle(gravity, 
             buff=LARGE_BUFF, color=WHITE
-        )
-        self.play(
-            Write(gravity),
-            DrawBorderThenFill(box)
         )
         right_arrow = Arrow(
             start=RIGHT*2, end=RIGHT*4,
@@ -269,47 +263,234 @@ class Integral(Scene):
         right_label = TextMobject("$e(t)$",
         )
         right_label.next_to(right_arrow, RIGHT, MED_SMALL_BUFF)
-        self.add(right_arrow)
-        self.add(right_label)
+        brace = Brace(right_label, DOWN, buff=0.1)
         prev_arrow = Arrow(
             start=LEFT*3+DOWN, end=LEFT*2+DOWN
         )
         prev_arrow.set_stroke(width=8)
         prev_label = TextMobject("wheels go brrr")
         prev_label.next_to(prev_arrow, LEFT, MED_SMALL_BUFF)
-        bottom = Line(RIGHT*4+RIGHT*MED_LARGE_BUFF+DOWN*2, LEFT*4+DOWN*2)
+        sensor = TextMobject("Sensor").next_to(right_label, DOWN, MED_LARGE_BUFF).set_color(BLUE)
+        sensor_box = SurroundingRectangle(
+            sensor, buff=SMALL_BUFF, color=BLUE
+        )
+        p_right = Line(sensor.get_center()+DOWN, sensor.get_center()+DOWN+LEFT*1.85)
         feedback = [
-            Line(RIGHT*4+RIGHT*MED_LARGE_BUFF+DOWN*MED_LARGE_BUFF, RIGHT*4+RIGHT*MED_LARGE_BUFF+DOWN*2),
-            bottom,
+            Line(sensor.get_center()+DOWN*0.5, sensor.get_center()+DOWN), 
+            p_right,
+            Line(LEFT*2.5+DOWN*2, LEFT*4+DOWN*2),
             Line(LEFT*4+DOWN*2, LEFT*4+DOWN+DOWN*MED_LARGE_BUFF)
         ]
-        bottom_label = TextMobject("Proportional ($K_p e(t)$)")
-        bottom_label.next_to(bottom, DOWN, MED_SMALL_BUFF)
-        feedback = [obj.set_stroke(width=8) for obj in feedback]
-        self.add(*feedback)
-        self.add(bottom_label)
-        self.add(prev_arrow)
-        self.add(prev_label)
-        integral_bottom = Line(RIGHT*4+RIGHT*MED_LARGE_BUFF+DOWN*3, LEFT*4+DOWN*3) 
-        integral_branch = [
-            Line(RIGHT*4+RIGHT*MED_LARGE_BUFF+DOWN*MED_LARGE_BUFF, RIGHT*4+RIGHT*MED_LARGE_BUFF+DOWN*3),
-            integral_bottom,
+        bottom_label = TextMobject("Proportional ($K_p e(t)$)").set_color(YELLOW) \
+                        .next_to(box, DOWN, MED_LARGE_BUFF)
+        bottom_box = SurroundingRectangle(
+            bottom_label, buff = SMALL_BUFF, color=YELLOW
+        )
+        feedback = VGroup(*[obj.set_stroke(width=8) for obj in feedback])
+        i_right = Line(sensor.get_center()+DOWN*2, sensor_box.get_center()+DOWN*2+LEFT*1.75)
+        integral_loop  = [
+            Line(sensor.get_center()+DOWN*0.5, sensor.get_center()+DOWN*2),
+            i_right,
+            Line(LEFT*2.6+DOWN*3, LEFT*4+DOWN*3),
             Line(LEFT*4+DOWN*3, LEFT*4+DOWN+DOWN*MED_LARGE_BUFF)
         ]
-        integral_label = TextMobject("Integral ($K_i \\int_0^t e(\\tau) d\\tau$)")
-        integral_label.next_to(integral_bottom, DOWN, MED_SMALL_BUFF)
-        integral_branch = [obj.set_stroke(width=8) for obj in integral_branch]
-        self.add(*integral_branch, integral_label)
-        everything = [
-            left_arrow, left_label, gravity, box, right_arrow, right_label, prev_arrow, prev_label,
-            *feedback, bottom_label, *integral_branch, integral_label
+        integral_loop = VGroup(*[obj.set_stroke(width=8) for obj in integral_loop])
+        integral_label = TextMobject("Integral ($K_i \\int_0^t e(\\tau) d\\tau$)").set_color(GREEN) \
+                            .next_to(bottom_box, DOWN, MED_LARGE_BUFF)
+        integral_box = SurroundingRectangle(
+            integral_label, buff=SMALL_BUFF, color=GREEN
+        )
+        all = [
+            gravity, left_arrow, left_label, right_arrow, right_label, box, feedback, bottom_label,
+            prev_arrow, prev_label, sensor, brace, sensor_box, bottom_box, integral_label, integral_loop,
+            integral_box
         ]
-        all = VGroup(*everything)
-        for i, item in enumerate(all):
-            all[i].shift(UP)
-        self.add(all)
+        VGroup(*all).shift(UP)
+        self.play(
+            Write(gravity),
+            Write(left_arrow),
+            Write(left_label),
+            Write(right_arrow),
+            Write(right_label),
+            DrawBorderThenFill(box),
+            Write(feedback),
+            Write(bottom_label),
+            Write(prev_arrow),
+            Write(prev_label),
+            Write(sensor),
+            Write(brace),
+            DrawBorderThenFill(sensor_box),
+            DrawBorderThenFill(bottom_box), 
+            Write(integral_label),
+            Write(integral_loop)
+        )
+        self.play(
+            DrawBorderThenFill(integral_box)
+        )
         self.wait()
+
+class Tangent(GraphScene):
+    CONFIG = {
+        "x_min": 0,
+        "x_max": 8000,
+        "y_min": -0.4,
+        "y_max": 1.6,
+        "x_tick_frequency": 1000,
+        "y_tick_frequency": 0.2,
+        "x_axis_label": "$t$",
+        "y_axis_label": "$e(t)$"
+    }
+    def construct(self):
+        self.setup_axes(animate=True)
+        with open('../bjc2020/demo_int_data.json') as json_file:
+            coords = json.load(json_file)
+        # for coord in coords:
+            # print(f"x: {coord['x']}, y: {coord['y']}")
+        dots = VGroup(*[Dot(point=self.coords_to_point(coord['x'],coord['y']), radius=0.03, color=BLUE) for coord in coords if coord['x'] < 8000])
+        self.play(Write(dots))
+        derivatives = [self.get_graph(
+            lambda x: ((coords[i]['y']-coords[i-1]['y'])/(coords[i]['x']-coords[i-1]['x']))*x+(coords[i-1]['y']-coords[i-1]['x']*((coords[i]['y']-coords[i-1]['y'])/(coords[i]['x']-coords[i-1]['x']))),
+            PURPLE
+        ) for i in range(1,len(dots)) if coords[i]['x'] < 8000]
+        self.play(ShowCreation(derivatives[0]))
+        for x,y in zip(derivatives[::], derivatives[1::]):
+            self.play(ReplacementTransform(x,y), run_time=0.02)
+        # for j in range(0, len(derivatives)-1):
+        #     self.play(ShowCreation(derivatives[j]))
+        #     self.play(Transform(derivatives[j], derivatives[j+1]))
+        # derivative = VGroup(*[Line(self.coords) for coord in coords[1:] if coord['x'] < 8000])
 
 class PID(Scene):
     def construct(self):
-        pass
+        left_arrow = Arrow(
+            start=LEFT*3+UP, end=LEFT*2+UP,
+        )
+        left_arrow.set_stroke(width=8)
+        left_label = TextMobject("Random error",
+        )
+        left_label.next_to(left_arrow, LEFT, MED_SMALL_BUFF)
+        gravity = TextMobject("Gravity")
+        box = SurroundingRectangle(gravity, 
+            buff=LARGE_BUFF, color=WHITE
+        )
+        right_arrow = Arrow(
+            start=RIGHT*2, end=RIGHT*4,
+        )
+        right_label = TextMobject("$e(t)$",
+        )
+        right_label.next_to(right_arrow, RIGHT, MED_SMALL_BUFF)
+        brace = Brace(right_label, DOWN, buff=0.1)
+        prev_arrow = Arrow(
+            start=LEFT*3+DOWN, end=LEFT*2+DOWN
+        )
+        prev_arrow.set_stroke(width=8)
+        prev_label = TextMobject("wheels go brrr")
+        prev_label.next_to(prev_arrow, LEFT, MED_SMALL_BUFF)
+        sensor = TextMobject("Sensor").next_to(right_label, DOWN, MED_LARGE_BUFF).set_color(BLUE)
+        sensor_box = SurroundingRectangle(
+            sensor, buff=SMALL_BUFF, color=BLUE
+        )
+        p_right = Line(sensor.get_center()+DOWN, sensor.get_center()+DOWN+LEFT*1.85)
+        feedback = [
+            Line(sensor.get_center()+DOWN*0.5, sensor.get_center()+DOWN), 
+            p_right,
+            Line(LEFT*2.5+DOWN*2, LEFT*4+DOWN*2),
+            Line(LEFT*4+DOWN*2, LEFT*4+DOWN+DOWN*MED_LARGE_BUFF)
+        ]
+        bottom_label = TextMobject("Proportional ($K_p e(t)$)").set_color(YELLOW) \
+                        .next_to(box, DOWN, MED_LARGE_BUFF)
+        bottom_box = SurroundingRectangle(
+            bottom_label, buff = SMALL_BUFF, color=YELLOW
+        )
+        feedback = VGroup(*[obj.set_stroke(width=8) for obj in feedback])
+        i_right = Line(sensor.get_center()+DOWN*2, sensor_box.get_center()+DOWN*2+LEFT*1.75)
+        integral_loop  = [
+            Line(sensor.get_center()+DOWN*0.5, sensor.get_center()+DOWN*2),
+            i_right,
+            Line(LEFT*2.7+DOWN*3, LEFT*4+DOWN*3),
+            Line(LEFT*4+DOWN*3, LEFT*4+DOWN+DOWN*MED_LARGE_BUFF)
+        ]
+        integral_loop = VGroup(*[obj.set_stroke(width=8) for obj in integral_loop])
+        integral_label = TextMobject("Integral ($K_i \\int_0^t e(\\tau) d\\tau$)").set_color(GREEN) \
+                            .next_to(bottom_box, DOWN, MED_LARGE_BUFF)
+        integral_box = SurroundingRectangle(
+            integral_label, buff=SMALL_BUFF, color=GREEN
+        )
+        d_right = Line(sensor.get_center()+DOWN*3.5, sensor_box.get_center()+DOWN*3.5+LEFT*1.85)
+        derivative_loop = [
+            Line(sensor.get_center()+DOWN*0.5, sensor.get_center()+DOWN*3.5),
+            d_right,
+            Line(LEFT*2.5+DOWN*4.5, LEFT*4+DOWN*4.5),
+            Line(LEFT*4+DOWN*4.5, LEFT*4+DOWN+DOWN*MED_LARGE_BUFF)
+        ]
+        derivative_loop = VGroup(*[obj.set_stroke(width=8) for obj in derivative_loop])
+        derivative_label = TextMobject("Derivative ($K_d \\frac{de(t)}{dt}$)").set_color(PURPLE) \
+                            .next_to(integral_box, DOWN, MED_LARGE_BUFF)
+        derivative_box = SurroundingRectangle(
+            derivative_label, buff=SMALL_BUFF, color=PURPLE
+        )
+        all = [
+            gravity, left_arrow, left_label, right_arrow, right_label, box, feedback, bottom_label,
+            prev_arrow, prev_label, sensor, brace, sensor_box, bottom_box, integral_label, integral_loop,
+            integral_box, derivative_loop, derivative_label, derivative_box
+        ]
+        VGroup(*all).shift(UP*2)
+        self.play(
+            Write(gravity),
+            Write(left_arrow),
+            Write(left_label),
+            Write(right_arrow),
+            Write(right_label),
+            DrawBorderThenFill(box),
+            Write(feedback),
+            Write(bottom_label),
+            Write(prev_arrow),
+            Write(prev_label),
+            Write(sensor),
+            Write(brace),
+            DrawBorderThenFill(sensor_box),
+            Write(integral_label),
+            Write(integral_loop),
+            Write(derivative_loop),
+            Write(derivative_label)
+        )
+        self.play(
+            DrawBorderThenFill(bottom_box) 
+        )
+        self.play(
+            DrawBorderThenFill(integral_box)
+        )
+        self.play(DrawBorderThenFill(derivative_box))
+        self.play(FadeOutAndShiftDown(VGroup(*all)))
+        first = VGroup(*TextMobject("Proportional", " + ", "Integral", " + ", "Derivative"))
+        first[0].set_color(YELLOW)
+        first[2].set_color(GREEN)
+        first[4].set_color(PURPLE)
+        second = VGroup(*TextMobject("PID ", "Controller"))
+        second[0].set_color_by_gradient(YELLOW, GREEN)
+        second[1].set_color_by_gradient(GREEN, PURPLE)
+        self.play(Write(first))
+        self.play(Transform(first, second))
+        self.wait()
+
+class ThankYou(Scene):
+    def construct(self):
+        love = TextMobject("Hand-coded with $\\heartsuit$ using ", "Manim ", "and ", "matter.js")
+        love[1].set_color(BLUE)
+        love[3].set_color(YELLOW)
+        demo = TextMobject("Tune your own PID controller: ", "https://SASE-Labs-2021.gitub.io/inverted-pendulum")
+        demo[1].set_color(GREEN)
+        learn = TextMobject("How to tune a PID controller: ", "https://nathanielbd.github.io/posts/segue-from-segways/")
+        learn[1].set_color(GREEN)
+        love.shift(UP*1.5)
+        learn.shift(DOWN*1.5)
+        self.play(
+            Write(love)
+        )
+        self.play(
+            Write(demo)
+        )
+        self.play(
+            Write(learn)
+        )
+        self.wait()
