@@ -1,8 +1,10 @@
-# Junior Breakthrough Challenge 2020
+# Breakthrough Junior Challenge 2020
 
 Script and Manim code
 
 ## Usage
+
+First, [install MiKTeX](https://miktex.org/download)
 
 ```
 # install dependencies in Ubuntu
@@ -18,7 +20,7 @@ git clone https://github.com/3b1b/manim.git
 cd manim
 python3 -m pip install -r requirements.txt
 cd ..
-git clone https://github.com/nathanielbd/jbc2020.git
+git clone https://github.com/nathanielbd/bjc2020.git
 ```
 
 Add the folowing lines to the preamble of `manim/manimlib/tex_template.tex`:
