@@ -21,7 +21,15 @@ class Segue(Scene):
         self.play(Write(question))
         self.wait(2)
         self.play(Transform(question, segue))
-        self.wait()
+        maintain = VGroup(*TextMobject("Complex systems ", "$\\nrightarrow$ chaos"))
+        maintain[0].set_color(GREEN)
+        maintain[1].set_color(RED)
+        self.wait(2)
+        self.play(
+            FadeOutAndShiftDown(question),
+            Write(maintain)
+        )
+        self.wait(2)
 
 class GravityBlock(Scene):
     def construct(self):
@@ -66,7 +74,7 @@ class GravityBlock(Scene):
             Write(prev_label),
             Write(lower),
         )
-        self.wait(2)
+        self.wait(1)
         self.play(
             Transform(prev_arrow, prev_arrow.copy().set_stroke(width=4)),
             Transform(right_arrow, right_arrow.copy().set_stroke(width=4)),
@@ -93,6 +101,8 @@ class GravityBlock(Scene):
 
 class Closeup(Scene):
     def construct(self):
+        aha = TextMobject("Changing the feedback loop")
+        self.play(Write(aha))
         system = TikzMobject(
             r"""
             \begin{tikzpicture}[
@@ -108,13 +118,18 @@ class Closeup(Scene):
             \end{tikzpicture}
             """
         )
-        self.play(Write(system))
+        self.wait(1)
+        self.play(
+            FadeOutAndShiftDown(aha),
+            Write(system)
+        )
         line = Line(UP*2.65+UP*MED_SMALL_BUFF+LEFT*0.35, DOWN*2.75+LEFT*0.35)
         line.set_color(RED)
         invisible_line = Line(DOWN*2.75+LEFT*0.35, DOWN*2.75).set_color(BLACK)
         self.play(Write(line))
         brace = Brace(invisible_line, DOWN, buff = 0.1)
         self.play(Write(brace))
+        self.wait(3)
         system_final = TikzMobject(
             r"""
             \begin{tikzpicture}[
@@ -134,6 +149,7 @@ class Closeup(Scene):
         self.play(
             Write(arrow)
         )
+        self.wait(2)
         self.play(
             FadeOutAndShiftDown(arrow),
             FadeOutAndShiftDown(invisible_line),
@@ -173,18 +189,18 @@ class Proportional(Scene):
         sensor_box = SurroundingRectangle(
             sensor, buff=SMALL_BUFF, color=BLUE
         )
-        p_right = Line(sensor.get_center()+DOWN, sensor.get_center()+DOWN+LEFT*1.85)
-        feedback = [
-            Line(sensor.get_center()+DOWN*0.5, sensor.get_center()+DOWN), 
-            p_right,
-            Line(LEFT*2.5+DOWN*2, LEFT*4+DOWN*2),
-            Line(LEFT*4+DOWN*2, LEFT*4+DOWN+DOWN*MED_LARGE_BUFF)
-        ]
         bottom_label = TextMobject("Proportional ($K_p e(t)$)").set_color(YELLOW) \
                         .next_to(box, DOWN, MED_LARGE_BUFF)
         bottom_box = SurroundingRectangle(
             bottom_label, buff = SMALL_BUFF, color=YELLOW
         )
+        p_right = Line([sensor.get_center()[0], bottom_label.get_center()[1], 0], bottom_label.get_center()+RIGHT*2.5)
+        feedback = [
+            Line(sensor.get_center()+DOWN*0.5, [sensor.get_center()[0], bottom_label.get_center()[1], 0]), 
+            p_right,
+            Line([0, bottom_label.get_center()[1], 0]+LEFT*2.5, [prev_label.get_center()[0], bottom_label.get_center()[1], 0]),
+            Line([prev_label.get_center()[0], bottom_label.get_center()[1], 0], prev_label.get_center()+DOWN*0.5)
+        ]
         feedback = [obj.set_stroke(width=8) for obj in feedback]
         self.play(
             Write(gravity),
@@ -274,32 +290,32 @@ class Integral(Scene):
         sensor_box = SurroundingRectangle(
             sensor, buff=SMALL_BUFF, color=BLUE
         )
-        p_right = Line(sensor.get_center()+DOWN, sensor.get_center()+DOWN+LEFT*1.85)
-        feedback = [
-            Line(sensor.get_center()+DOWN*0.5, sensor.get_center()+DOWN), 
-            p_right,
-            Line(LEFT*2.5+DOWN*2, LEFT*4+DOWN*2),
-            Line(LEFT*4+DOWN*2, LEFT*4+DOWN+DOWN*MED_LARGE_BUFF)
-        ]
         bottom_label = TextMobject("Proportional ($K_p e(t)$)").set_color(YELLOW) \
                         .next_to(box, DOWN, MED_LARGE_BUFF)
         bottom_box = SurroundingRectangle(
             bottom_label, buff = SMALL_BUFF, color=YELLOW
         )
-        feedback = VGroup(*[obj.set_stroke(width=8) for obj in feedback])
-        i_right = Line(sensor.get_center()+DOWN*2, sensor_box.get_center()+DOWN*2+LEFT*1.75)
-        integral_loop  = [
-            Line(sensor.get_center()+DOWN*0.5, sensor.get_center()+DOWN*2),
-            i_right,
-            Line(LEFT*2.6+DOWN*3, LEFT*4+DOWN*3),
-            Line(LEFT*4+DOWN*3, LEFT*4+DOWN+DOWN*MED_LARGE_BUFF)
+        p_right = Line([sensor.get_center()[0], bottom_label.get_center()[1], 0], bottom_label.get_center()+RIGHT*2.5)
+        feedback = [
+            Line(sensor.get_center()+DOWN*0.5, [sensor.get_center()[0], bottom_label.get_center()[1], 0]), 
+            p_right,
+            Line([0, bottom_label.get_center()[1], 0]+LEFT*2.5, [prev_label.get_center()[0], bottom_label.get_center()[1], 0]),
+            Line([prev_label.get_center()[0], bottom_label.get_center()[1], 0], prev_label.get_center()+DOWN*0.5)
         ]
-        integral_loop = VGroup(*[obj.set_stroke(width=8) for obj in integral_loop])
+        feedback = VGroup(*[obj.set_stroke(width=8) for obj in feedback])
         integral_label = TextMobject("Integral ($K_i \\int_0^t e(\\tau) d\\tau$)").set_color(GREEN) \
                             .next_to(bottom_box, DOWN, MED_LARGE_BUFF)
         integral_box = SurroundingRectangle(
             integral_label, buff=SMALL_BUFF, color=GREEN
         )
+        i_right = Line([sensor.get_center()[0], integral_label.get_center()[1], 0], integral_label.get_center()+RIGHT*2.6)
+        integral_loop  = [
+            Line(sensor.get_center()+DOWN*0.5, [sensor.get_center()[0], integral_label.get_center()[1], 0]),
+            i_right,
+            Line(integral_label.get_center()+LEFT*2.6, [prev_label.get_center()[0], integral_label.get_center()[1], 0]),
+            Line([prev_label.get_center()[0], integral_label.get_center()[1], 0], prev_label.get_center()+DOWN*0.5)
+        ]
+        integral_loop = VGroup(*[obj.set_stroke(width=8) for obj in integral_loop])
         all = [
             gravity, left_arrow, left_label, right_arrow, right_label, box, feedback, bottom_label,
             prev_arrow, prev_label, sensor, brace, sensor_box, bottom_box, integral_label, integral_loop,
@@ -390,45 +406,45 @@ class PID(Scene):
         sensor_box = SurroundingRectangle(
             sensor, buff=SMALL_BUFF, color=BLUE
         )
-        p_right = Line(sensor.get_center()+DOWN, sensor.get_center()+DOWN+LEFT*1.85)
-        feedback = [
-            Line(sensor.get_center()+DOWN*0.5, sensor.get_center()+DOWN), 
-            p_right,
-            Line(LEFT*2.5+DOWN*2, LEFT*4+DOWN*2),
-            Line(LEFT*4+DOWN*2, LEFT*4+DOWN+DOWN*MED_LARGE_BUFF)
-        ]
         bottom_label = TextMobject("Proportional ($K_p e(t)$)").set_color(YELLOW) \
                         .next_to(box, DOWN, MED_LARGE_BUFF)
         bottom_box = SurroundingRectangle(
             bottom_label, buff = SMALL_BUFF, color=YELLOW
         )
-        feedback = VGroup(*[obj.set_stroke(width=8) for obj in feedback])
-        i_right = Line(sensor.get_center()+DOWN*2, sensor_box.get_center()+DOWN*2+LEFT*1.75)
-        integral_loop  = [
-            Line(sensor.get_center()+DOWN*0.5, sensor.get_center()+DOWN*2),
-            i_right,
-            Line(LEFT*2.7+DOWN*3, LEFT*4+DOWN*3),
-            Line(LEFT*4+DOWN*3, LEFT*4+DOWN+DOWN*MED_LARGE_BUFF)
+        p_right = Line([sensor.get_center()[0], bottom_label.get_center()[1], 0], bottom_label.get_center()+RIGHT*2.5)
+        feedback = [
+            Line(sensor.get_center()+DOWN*0.5, [sensor.get_center()[0], bottom_label.get_center()[1], 0]), 
+            p_right,
+            Line([0, bottom_label.get_center()[1], 0]+LEFT*2.5, [prev_label.get_center()[0], bottom_label.get_center()[1], 0]),
+            Line([prev_label.get_center()[0], bottom_label.get_center()[1], 0], prev_label.get_center()+DOWN*0.5)
         ]
-        integral_loop = VGroup(*[obj.set_stroke(width=8) for obj in integral_loop])
+        feedback = VGroup(*[obj.set_stroke(width=8) for obj in feedback])
         integral_label = TextMobject("Integral ($K_i \\int_0^t e(\\tau) d\\tau$)").set_color(GREEN) \
                             .next_to(bottom_box, DOWN, MED_LARGE_BUFF)
         integral_box = SurroundingRectangle(
             integral_label, buff=SMALL_BUFF, color=GREEN
         )
-        d_right = Line(sensor.get_center()+DOWN*3.5, sensor_box.get_center()+DOWN*3.5+LEFT*1.85)
-        derivative_loop = [
-            Line(sensor.get_center()+DOWN*0.5, sensor.get_center()+DOWN*3.5),
-            d_right,
-            Line(LEFT*2.5+DOWN*4.5, LEFT*4+DOWN*4.5),
-            Line(LEFT*4+DOWN*4.5, LEFT*4+DOWN+DOWN*MED_LARGE_BUFF)
+        i_right = Line([sensor.get_center()[0], integral_label.get_center()[1], 0], integral_label.get_center()+RIGHT*2.6)
+        integral_loop  = [
+            Line(sensor.get_center()+DOWN*0.5, [sensor.get_center()[0], integral_label.get_center()[1], 0]),
+            i_right,
+            Line(integral_label.get_center()+LEFT*2.6, [prev_label.get_center()[0], integral_label.get_center()[1], 0]),
+            Line([prev_label.get_center()[0], integral_label.get_center()[1], 0], prev_label.get_center()+DOWN*0.5)
         ]
-        derivative_loop = VGroup(*[obj.set_stroke(width=8) for obj in derivative_loop])
+        integral_loop = VGroup(*[obj.set_stroke(width=8) for obj in integral_loop])
         derivative_label = TextMobject("Derivative ($K_d \\frac{de(t)}{dt}$)").set_color(PURPLE) \
                             .next_to(integral_box, DOWN, MED_LARGE_BUFF)
         derivative_box = SurroundingRectangle(
             derivative_label, buff=SMALL_BUFF, color=PURPLE
         )
+        d_right = Line([sensor.get_center()[0], derivative_label.get_center()[1], 0], derivative_label.get_center()+RIGHT*2.4)
+        derivative_loop = [
+            Line(sensor.get_center()+DOWN*0.5, [sensor.get_center()[0], derivative_label.get_center()[1], 0]),
+            d_right,
+            Line(derivative_label.get_center()+LEFT*2.4, [prev_label.get_center()[0], derivative_label.get_center()[1], 0]),
+            Line([prev_label.get_center()[0], derivative_label.get_center()[1], 0], prev_label.get_center()+DOWN*0.5)
+        ]
+        derivative_loop = VGroup(*[obj.set_stroke(width=8) for obj in derivative_loop])
         all = [
             gravity, left_arrow, left_label, right_arrow, right_label, box, feedback, bottom_label,
             prev_arrow, prev_label, sensor, brace, sensor_box, bottom_box, integral_label, integral_loop,

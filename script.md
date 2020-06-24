@@ -21,13 +21,13 @@ Segways are cool, right? But how do they balance?
 > [x] Segue.mp4
 > [x] edit
 
-Well that question's the perfect segue into talking about cybernetics!
+Well that question's the perfect segue into talking about cybernetics! Cybernetics is the study of how complex systems maintain themselves.
 
 > [x] demo with Kp, Ki, Kd all 0
 > demo_zero.mp4
 > [ ] edit in post
 
-Left on its own, the Segway, shown here as a cart and pole, will just fall to one side. No matter how close the handle is to being perpendicular to the floor, the acceleration due to gravity compounds the small error until the Segway comes toppling down.
+For example, the Segway, shown here as a cart and pole, will just fall to one side when left on its own. No matter how close the handle is to being perpendicular to the floor, the acceleration due to gravity compounds the small error until the Segway comes toppling down.
 
 > Manim of 
 > random perturbations g*sin(theta)
@@ -44,13 +44,13 @@ We essentially have a positive feedback look for our errors. Random error comes 
 > [x] demo_sensor.mp4
 > [ ] edit in post
 
-and our function of angle over time (e) grows increasingly unstable
+and our function of error over time grows increasingly unstable
 
 > close up of the demo with vertical line showing the center of mass
 > [x] Closeup.mp4
 > [x] edit
 
-But what about if we change the feedback loop? The source of our error comes from the center of mass of the handle not being directly above the pivot point. The handle won't fall over if the cart rolls under the center of mass.
+But what about if we change the feedback loop? The source of our error comes from the center of mass of the handle not being directly above the pivot point. The handle won't fall over if the cart rolls under the center of mass before it falls down.
 
 > Manim of the same system except there is a lower loop
 > output (wheels go brrr) --> e(t)
