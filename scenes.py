@@ -484,6 +484,8 @@ class ThankYou(Scene):
         learn[1].set_color(GREEN)
         love.shift(UP*1.5)
         learn.shift(DOWN*1.5)
+        segway = TextMobject("RIP Segway (2001-2020)")
+        segway.shift(DOWN*3)
         self.play(
             Write(love)
         )
@@ -492,5 +494,8 @@ class ThankYou(Scene):
         )
         self.play(
             Write(learn)
+        )
+        self.play(
+            Write(segway)
         )
         self.wait()
