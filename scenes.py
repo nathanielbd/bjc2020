@@ -209,19 +209,27 @@ class Proportional(Scene):
             Write(right_arrow),
             Write(right_label),
             DrawBorderThenFill(box),
-            Write(VGroup(*feedback)),
-            Write(bottom_label),
-            Write(prev_arrow),
-            Write(prev_label),
-            Write(sensor)
+            # Write(VGroup(*feedback)),
+            # Write(bottom_label),
+            # Write(prev_arrow),
+            # Write(prev_label),
+            # Write(sensor)
+        )
+        self.play(
+            Write(sensor),
+            DrawBorderThenFill(sensor_box)
         )
         self.play(
             Write(brace)
         )
         self.play(
-            DrawBorderThenFill(sensor_box)
+            Write(VGroup(*feedback)),
+            Write(prev_arrow),
+            Write(prev_label)
         )
+        self.wait(1)
         self.play(
+            Write(bottom_label),
             DrawBorderThenFill(bottom_box)
         )
         self.wait()
@@ -252,13 +260,19 @@ class Auc(GraphScene):
         integral = VGroup(*[Line(self.coords_to_point(coord['x'],0), self.coords_to_point(coord['x'],coord['y']), stroke_opacity=0.3).set_color(BLUE).set_stroke(width=8) for coord in coords if coord['x'] < 8000])
         left = SurroundingRectangle(dots)
         left.stretch(0.38, 0, about_edge=LEFT)
+        self.wait(1)
         self.play(DrawBorderThenFill(left))
         right = SurroundingRectangle(dots, color=RED)
         right.stretch(0.62, 0, about_edge=RIGHT)
+        self.wait(1)
         self.play(
-            Transform(left, right),
+            Transform(left, right)
+        )
+        self.wait(3)
+        self.play(
             Write(integral)
         )
+        self.wait(4)
 
 class Integral(Scene):
     def construct(self):
@@ -345,6 +359,85 @@ class Integral(Scene):
         )
         self.wait()
 
+class Overshoot(Scene):
+    def construct(self):
+        system = TikzMobject(
+            r"""
+            \begin{tikzpicture}[
+                circlenode/.style={circle, draw},
+                rectanglenode/.style={rectangle, draw, minimum width=2em},
+                wheelnode/.style={circle, draw, minimum size=1.5em}
+            ]
+                \node[circlenode] at (-0.25,0) {};
+                \draw (-0.25,0)--(0,-4);
+                \node[rectanglenode] at (0,-4) {};
+                \node[wheelnode] at (0.5,-4) {};
+                \node[wheelnode] at (-0.5, -4) {};
+            \end{tikzpicture}
+            """
+        )
+        line = Line(UP*2.65+UP*MED_SMALL_BUFF+LEFT*0.35, DOWN*2.75+LEFT*0.35)
+        line.set_color(RED)
+        arrow = Arrow(start=ORIGIN, end=LEFT).set_color(YELLOW)
+        self.play(
+            Write(system),
+            Write(line)# ,
+            # Write(arrow)
+        )
+        # invisible_line = Line(DOWN*2.75+LEFT*0.35, DOWN*2.75).set_color(BLACK)
+        # brace = Brace(invisible_line, DOWN, buff = 0.1)
+        # self.play(Write(brace))
+        self.wait(1)
+        self.play(
+            Write(arrow)
+        )
+        system_final = TikzMobject(
+            r"""
+            \begin{tikzpicture}[
+                circlenode/.style={circle, draw},
+                rectanglenode/.style={rectangle, draw, minimum width=2em},
+                wheelnode/.style={circle, draw, minimum size=1.5em}
+            ]
+                \node[circlenode] at (-0.25,0) {};
+                \draw (-0.25,0)--(-0.25,-4);
+                \node[rectanglenode] at (-0.25,-4) {};
+                \node[wheelnode] at (0.25,-4) {};
+                \node[wheelnode] at (-0.75, -4) {};
+            \end{tikzpicture}
+            """
+        ).shift(LEFT*0.35)
+        self.wait(1)
+        self.play(
+            FadeOutAndShiftDown(arrow),
+            # FadeOutAndShiftDown(invisible_line),
+            # FadeOutAndShiftDown(line),
+            # FadeOutAndShiftDown(brace),
+            Transform(system, system_final)
+        )
+        system_overshoot = TikzMobject(
+            r"""
+            \begin{tikzpicture}[
+                circlenode/.style={circle, draw},
+                rectanglenode/.style={rectangle, draw, minimum width=2em},
+                wheelnode/.style={circle, draw, minimum size=1.5em}
+            ]
+                \node[circlenode] at (-0.5,0) {};
+                \draw (-0.5,0)--(-0.75,-4);
+                \node[rectanglenode] at (-0.75,-4) {};
+                \node[wheelnode] at (-0.25,-4) {};
+                \node[wheelnode] at (-1.25, -4) {};
+            \end{tikzpicture}
+            """
+        ).shift(LEFT*1.05)
+        self.wait(1)
+        self.play(
+            # FadeOutAndShiftDown(line),
+            # Write(line.shift(LEFT*0.35)),
+            Transform(line, line.copy().shift(LEFT*0.35)),
+            Transform(system, system_overshoot)
+        )
+        self.wait()
+
 class Tangent(GraphScene):
     CONFIG = {
         "x_min": 0,
@@ -363,14 +456,28 @@ class Tangent(GraphScene):
         # for coord in coords:
             # print(f"x: {coord['x']}, y: {coord['y']}")
         dots = VGroup(*[Dot(point=self.coords_to_point(coord['x'],coord['y']), radius=0.03, color=BLUE) for coord in coords if coord['x'] < 8000])
-        self.play(Write(dots))
+        self.play(Write(dots), run_time=0.5)
+        inflections = [3950, 4375, 4775, 5200, 5600, 6020, 6460, 7000]
+        arrow = Arrow(start=self.coords_to_point(3950, 0)+DOWN, end=self.coords_to_point(3950, 0))
+        self.play(Write(arrow), run_time=0.5)
+        for inflection in inflections[1:]:
+            self.play(Transform(arrow, Arrow(start=self.coords_to_point(inflection, 0)+DOWN, end=self.coords_to_point(inflection, 0))), run_time=0.2)
+            self.play(Write(Dot(point=self.coords_to_point(inflection,0), radius=0.05, color=YELLOW)), run_time=0.2)
+        self.play(FadeOutAndShiftDown(arrow))
+        flat_curve = self.get_graph(lambda x: 4/(x+1), GREEN)
+        self.play(ShowCreation(flat_curve), FadeOutAndShiftDown(dots))
+        self.wait(4)
+        self.play(FadeOutAndShiftDown(flat_curve), FadeIn(dots))
         derivatives = [self.get_graph(
+            # point slope form in a one-liner lambda func is ugly...
             lambda x: ((coords[i]['y']-coords[i-1]['y'])/(coords[i]['x']-coords[i-1]['x']))*x+(coords[i-1]['y']-coords[i-1]['x']*((coords[i]['y']-coords[i-1]['y'])/(coords[i]['x']-coords[i-1]['x']))),
             PURPLE
         ) for i in range(1,len(dots)) if coords[i]['x'] < 8000]
+        slopes = [[i, (coords[i]['y']-coords[i-1]['y'])/(coords[i]['x']-coords[i-1]['x'])] for i in range(1,len(dots)) if coords[i]['x'] < 8000]
         self.play(ShowCreation(derivatives[0]))
-        for x,y in zip(derivatives[::], derivatives[1::]):
-            self.play(ReplacementTransform(x,y), run_time=0.02)
+        for x,y,z in zip(derivatives[::], derivatives[1::], slopes):
+            self.play(ReplacementTransform(x,y), run_time=0.0002)
+            self.add(Dot(point=self.coords_to_point(z[0], z[1]), radius=0.03, color=PURPLE))
         # for j in range(0, len(derivatives)-1):
         #     self.play(ShowCreation(derivatives[j]))
         #     self.play(Transform(derivatives[j], derivatives[j+1]))

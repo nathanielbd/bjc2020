@@ -1,11 +1,16 @@
+# BRUNIOR JAKETHROUGH CHALLENGE`
+
 # TODO: go with
 # [ ] protein folding
 # [ ] entropy is information/Maxwell's Demon/Reversible Computing
 # [x] PID controllers
 
-# TODO: consider (check youtube audio library)
+# TODO: consider (check youtube audio library or zapsplat)
 # [ ] sound effects, 
-# [ ] music, 
+#   falling: https://www.youtube.com/watch?v=JSUk2r4Wp8k&list=PLv6VwSX9sjmdnlSo1oodi7ZOgxGX40jRl&index=19
+#   punchline drum and cymbals: https://www.youtube.com/watch?v=042-Z_iHGWI&list=PLv6VwSX9sjmdnlSo1oodi7ZOgxGX40jRl&index=35
+#   first part of this for gravity compounding: https://freesound.org/people/plasterbrain/sounds/351807/
+# [ ] music (pick from Alec Koff or Podington Bear cuz royalty free), 
 # [ ] colors
 
 # TODO: rerender with production quality
@@ -60,6 +65,8 @@ But what about if we change the feedback loop? The source of our error comes fro
 > [x] Proportional.mp4
 > [x] edit
 
+# TODO: draw the proportional loop separately 
+
 Let's use a sensor to measure the error. We'll make the cart roll under the center of mass faster depending on the magnitude of the error.
 
 > demo with Kp > 0, others = 0 with the sensor below it\
@@ -90,26 +97,26 @@ To compensate, we can make the cart roll faster proportional to the area under t
 > [x] demo_int.mp4
 > [ ] edit in post
 
-But this doesn't give good results; momentum causes the system to overshoot. Talk about a wild ride.
+But this doesn't give good results either; momentum causes the system to overshoot. Talk about a wild ride.
 
 > Use Manim to draw tangent line
 > [x] Tangent.mp4
 > [x] edit (draw data points with Manim instead of screenshot)
 
-During the oscillation, the rate of change of the error changes over time. To combat this oscillation, we need to make the cart roll faster proportional to the slope of the error curve (the derivative).
+We want to bring the error to zero, but our cart rolls too quickly and passes by the center of mass. On the graph, this shows up as a steep line while crossing the horizontal axis. We want the slope of the line to be flat so when the error reaches zero, it stays zero. To do this, we can make the cart slow down proportional to the slope of the error curve (the derivative).
 
 > working demo!
 > file:///C:/Users/nathanielbd/code/inverted-pendulum/index.html?kp=1.6&ki=0.004&kd=26
 > [ ] working_demo.mp4
 > [ ] edit in post
 
-The system doesn't overshoot and it's stable.
+The system doesn't overshoot and it's stable. We flattened the curve!
 
 > Manim with the final feedback loop with all 3 PID -- bold them when they are mentioned
 > transition so connection to PID acronym is made clear
 > [x] PID.mp4
 
-So we finally engineered our very own self-balancing system, changing the speed of the cart based on the error, the integral of the error, and the derivative of the error! A PID controller! Cybernetics and feedback loops form the basis for so many complex systems, from
+So we finally engineered our very own self-balancing system, changing the speed of the cart based on the error, the integral of the error, and the derivative of the error! Cybernetics and feedback loops, like this PID controller, form the basis for so many complex systems, from
 
 > some robot
 > https://www.pexels.com/video/automatic-chocolate-machine-855117/
