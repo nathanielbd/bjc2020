@@ -37,3 +37,5 @@ Finally,
 cd manim
 python3 -m manim ../jbc2020/scenes.py <SceneName> -pl
 ```
+
+`-pl` flag means preview at low quality. For production level quality, use `-p`.

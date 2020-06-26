@@ -2,11 +2,10 @@
 
 from manimlib.imports import *
 
-# usage: python3 -m manim scenes.py SceneName -pl
-
-# TODO: clean this up and document after the competition
+# usage: python3 -m manim scenes.py SceneName -p
 
 class TikzMobject(TextMobject):
+    # Make sure the tikzpicture doesn't fill itself in
     CONFIG = {
         "stroke_width":3,
         "fill_opacity":0,
@@ -20,6 +19,7 @@ class Segue(Scene):
         segue[1].set_color_by_gradient(GREEN, RED)
         self.play(Write(question))
         self.wait(2)
+        # ba dum tish
         self.play(Transform(question, segue))
         maintain = VGroup(*TextMobject("Complex systems ", "$\\nrightarrow$ chaos"))
         maintain[0].set_color(GREEN)
@@ -75,6 +75,7 @@ class GravityBlock(Scene):
             Write(lower),
         )
         self.wait(1)
+        # mimic compound interest
         self.play(
             Transform(prev_arrow, prev_arrow.copy().set_stroke(width=4)),
             Transform(right_arrow, right_arrow.copy().set_stroke(width=4)),
@@ -103,6 +104,7 @@ class Closeup(Scene):
     def construct(self):
         aha = TextMobject("Changing the feedback loop")
         self.play(Write(aha))
+        # inverted pendulum leaned to the left
         system = TikzMobject(
             r"""
             \begin{tikzpicture}[
@@ -125,11 +127,15 @@ class Closeup(Scene):
         )
         line = Line(UP*2.65+UP*MED_SMALL_BUFF+LEFT*0.35, DOWN*2.75+LEFT*0.35)
         line.set_color(RED)
+        # braces constructor uses another object to set the width
+        # use an invisible line to do this for us
         invisible_line = Line(DOWN*2.75+LEFT*0.35, DOWN*2.75).set_color(BLACK)
         self.play(Write(line))
         brace = Brace(invisible_line, DOWN, buff = 0.1)
         self.play(Write(brace))
         self.wait(3)
+        # inverted pendulum upright after the cart rolls
+        # under center of mass
         system_final = TikzMobject(
             r"""
             \begin{tikzpicture}[
@@ -194,6 +200,8 @@ class Proportional(Scene):
         bottom_box = SurroundingRectangle(
             bottom_label, buff = SMALL_BUFF, color=YELLOW
         )
+        # get_center returns [x, y, z]
+        # Points like LEFT, UP, DOWN are aliases for these coord tuples
         p_right = Line([sensor.get_center()[0], bottom_label.get_center()[1], 0], bottom_label.get_center()+RIGHT*2.5)
         feedback = [
             Line(sensor.get_center()+DOWN*0.5, [sensor.get_center()[0], bottom_label.get_center()[1], 0]), 
@@ -209,11 +217,6 @@ class Proportional(Scene):
             Write(right_arrow),
             Write(right_label),
             DrawBorderThenFill(box),
-            # Write(VGroup(*feedback)),
-            # Write(bottom_label),
-            # Write(prev_arrow),
-            # Write(prev_label),
-            # Write(sensor)
         )
         self.play(
             Write(sensor),
@@ -251,12 +254,13 @@ class Auc(GraphScene):
 
     def construct(self):
         self.setup_axes(animate=True)
+        # I ran the simulation, then console.log()'d the datapoints
+        # I then copied that to a .json file
         with open('../bjc2020/demo_prop_data.json') as json_file:
             coords = json.load(json_file)
-        # for coord in coords:
-            # print(f"x: {coord['x']}, y: {coord['y']}")
         dots = VGroup(*[Dot(point=self.coords_to_point(coord['x'],coord['y']), radius=0.03, color=BLUE) for coord in coords if coord['x'] < 8000])
         self.play(Write(dots))
+        # GraphScenes have a way to convert coordinates in the graph data to points on the screen
         integral = VGroup(*[Line(self.coords_to_point(coord['x'],0), self.coords_to_point(coord['x'],coord['y']), stroke_opacity=0.3).set_color(BLUE).set_stroke(width=8) for coord in coords if coord['x'] < 8000])
         left = SurroundingRectangle(dots)
         left.stretch(0.38, 0, about_edge=LEFT)
@@ -330,6 +334,7 @@ class Integral(Scene):
             Line([prev_label.get_center()[0], integral_label.get_center()[1], 0], prev_label.get_center()+DOWN*0.5)
         ]
         integral_loop = VGroup(*[obj.set_stroke(width=8) for obj in integral_loop])
+        # had to shift everything up because there wasn't enough room below
         all = [
             gravity, left_arrow, left_label, right_arrow, right_label, box, feedback, bottom_label,
             prev_arrow, prev_label, sensor, brace, sensor_box, bottom_box, integral_label, integral_loop,
@@ -391,6 +396,7 @@ class Overshoot(Scene):
         self.play(
             Write(arrow)
         )
+        # copy and pasted from Closeup, better name would be system_upright
         system_final = TikzMobject(
             r"""
             \begin{tikzpicture}[
@@ -409,11 +415,9 @@ class Overshoot(Scene):
         self.wait(1)
         self.play(
             FadeOutAndShiftDown(arrow),
-            # FadeOutAndShiftDown(invisible_line),
-            # FadeOutAndShiftDown(line),
-            # FadeOutAndShiftDown(brace),
             Transform(system, system_final)
         )
+        # inverted pendulum leaning right because the cart overshot
         system_overshoot = TikzMobject(
             r"""
             \begin{tikzpicture}[
@@ -431,8 +435,6 @@ class Overshoot(Scene):
         ).shift(LEFT*1.05)
         self.wait(1)
         self.play(
-            # FadeOutAndShiftDown(line),
-            # Write(line.shift(LEFT*0.35)),
             Transform(line, line.copy().shift(LEFT*0.35)),
             Transform(system, system_overshoot)
         )
@@ -453,35 +455,49 @@ class Tangent(GraphScene):
         self.setup_axes(animate=True)
         with open('../bjc2020/demo_int_data.json') as json_file:
             coords = json.load(json_file)
-        # for coord in coords:
-            # print(f"x: {coord['x']}, y: {coord['y']}")
         dots = VGroup(*[Dot(point=self.coords_to_point(coord['x'],coord['y']), radius=0.03, color=BLUE) for coord in coords if coord['x'] < 8000])
         self.play(Write(dots), run_time=0.5)
-        inflections = [3950, 4375, 4775, 5200, 5600, 6020, 6460, 7000]
-        arrow = Arrow(start=self.coords_to_point(3950, 0)+DOWN, end=self.coords_to_point(3950, 0))
-        self.play(Write(arrow), run_time=0.5)
-        for inflection in inflections[1:]:
-            self.play(Transform(arrow, Arrow(start=self.coords_to_point(inflection, 0)+DOWN, end=self.coords_to_point(inflection, 0))), run_time=0.2)
-            self.play(Write(Dot(point=self.coords_to_point(inflection,0), radius=0.05, color=YELLOW)), run_time=0.2)
-        self.play(FadeOutAndShiftDown(arrow))
-        flat_curve = self.get_graph(lambda x: 4/(x+1), GREEN)
-        self.play(ShowCreation(flat_curve), FadeOutAndShiftDown(dots))
-        self.wait(4)
-        self.play(FadeOutAndShiftDown(flat_curve), FadeIn(dots))
+        # this is an array of indexes where the json array has a 
+        # data point crossing the x-axis
+        inflections = [238, 263, 287, 312, 336, 362, 388, 420]
+        inflections = [self.get_graph(
+            # point-slope form looks ugly when its a one-liner lambda
+            lambda x: ((coords[i]['y']-coords[i-1]['y'])/(coords[i]['x']-coords[i-1]['x']))*x+(coords[i-1]['y']-coords[i-1]['x']*((coords[i]['y']-coords[i-1]['y'])/(coords[i]['x']-coords[i-1]['x']))),
+            YELLOW,
+            # we're working with miliseconds and 60fps
+            x_min = (i*1000/60)-200,
+            x_max = (i*1000/60)+200
+        ) for i in inflections]
+        # loop up numerical derivatives on wikipedia or look at my blog post at the end of the video
+        # if you're reading this and confused
+        # it's the secant line approximation
         derivatives = [self.get_graph(
             # point slope form in a one-liner lambda func is ugly...
             lambda x: ((coords[i]['y']-coords[i-1]['y'])/(coords[i]['x']-coords[i-1]['x']))*x+(coords[i-1]['y']-coords[i-1]['x']*((coords[i]['y']-coords[i-1]['y'])/(coords[i]['x']-coords[i-1]['x']))),
             PURPLE
         ) for i in range(1,len(dots)) if coords[i]['x'] < 8000]
-        slopes = [[i, (coords[i]['y']-coords[i-1]['y'])/(coords[i]['x']-coords[i-1]['x'])] for i in range(1,len(dots)) if coords[i]['x'] < 8000]
+        for inflection in inflections[1:]:
+            self.play(ShowCreation(inflection), run_time=0.4)
+        for inflection in inflections[1:]:
+            self.play(FadeOutAndShiftDown(inflection), run_time=0.0001)
+        # flat curve is the ideal situation
+        # gotta avoid dividing by zero
+        flat_curve = self.get_graph(lambda x: 4/(x+1), GREEN)
+        self.play(ShowCreation(flat_curve), FadeOutAndShiftDown(dots))
+        self.wait(4)
+        self.play(FadeOutAndShiftDown(flat_curve), FadeIn(dots))
+        # this is a pretty bad name
+        # the first index is the miliseconds, the second is the derivative times 100 so it show up
+        slopes = [[i*1000/60, 100*(coords[i]['y']-coords[i-1]['y'])/(coords[i]['x']-coords[i-1]['x'])] for i in range(1,len(dots)) if coords[i]['x'] < 8000]
         self.play(ShowCreation(derivatives[0]))
+        # x,y,z are terrible names
+        # x is element from derivatives
+        # y is the element after x
+        # z is the corresponding slope between x and y
         for x,y,z in zip(derivatives[::], derivatives[1::], slopes):
+            # there might be a better way to do this, but this is what I did to animate the derivative
             self.play(ReplacementTransform(x,y), run_time=0.0002)
             self.add(Dot(point=self.coords_to_point(z[0], z[1]), radius=0.03, color=PURPLE))
-        # for j in range(0, len(derivatives)-1):
-        #     self.play(ShowCreation(derivatives[j]))
-        #     self.play(Transform(derivatives[j], derivatives[j+1]))
-        # derivative = VGroup(*[Line(self.coords) for coord in coords[1:] if coord['x'] < 8000])
 
 class PID(Scene):
     def construct(self):
@@ -577,24 +593,26 @@ class PID(Scene):
             Write(derivative_loop),
             Write(derivative_label)
         )
+        self.wait(2)
         self.play(
-            DrawBorderThenFill(bottom_box) 
+            DrawBorderThenFill(bottom_box), run_time=0.9 
         )
         self.play(
-            DrawBorderThenFill(integral_box)
+            DrawBorderThenFill(integral_box), run_time=0.9
         )
-        self.play(DrawBorderThenFill(derivative_box))
+        self.play(DrawBorderThenFill(derivative_box), run_time=0.9)
+        # should probably mention the asterisk is unpacking the values of the array
         self.play(FadeOutAndShiftDown(VGroup(*all)))
         first = VGroup(*TextMobject("Proportional", " + ", "Integral", " + ", "Derivative"))
         first[0].set_color(YELLOW)
         first[2].set_color(GREEN)
         first[4].set_color(PURPLE)
-        second = VGroup(*TextMobject("PID ", "Controller"))
+        second = VGroup(*TextMobject("PID ", "Controller", "$\\rightarrow$ Complex Systems!"))
         second[0].set_color_by_gradient(YELLOW, GREEN)
         second[1].set_color_by_gradient(GREEN, PURPLE)
         self.play(Write(first))
         self.play(Transform(first, second))
-        self.wait()
+        self.wait(3)
 
 class ThankYou(Scene):
     def construct(self):
@@ -607,18 +625,13 @@ class ThankYou(Scene):
         learn[1].set_color(GREEN)
         love.shift(UP*1.5)
         learn.shift(DOWN*1.5)
+        # The day before submission, news broke out that Segway was ceasing production
         segway = TextMobject("RIP Segway (2001-2020)")
         segway.shift(DOWN*3)
         self.play(
-            Write(love)
-        )
-        self.play(
-            Write(demo)
-        )
-        self.play(
-            Write(learn)
-        )
-        self.play(
+            Write(love),
+            Write(demo),
+            Write(learn),
             Write(segway)
         )
-        self.wait()
+        self.wait(20)
